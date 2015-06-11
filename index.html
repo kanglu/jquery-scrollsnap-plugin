@@ -46,6 +46,11 @@
         snaps: 'img',
         proximity: 160
       });
+      $('.directionScroll').scrollsnap({
+        snaps: 'img',
+        proximity: 160,
+        snapOnScrollDirection: true
+      });      
       $("code pre").snippet("javascript",{style:"vim",showNum:false});
     });
   </script>
@@ -81,6 +86,15 @@
           <img src='http://placehold.it/300x160/ff00ff/000000&text=keep scrolling' />
           <img src='http://placehold.it/300x160/ff0000/000000&text=scroll me left' />
       </div>
+      
+      <h4>Scrollsnap based on direction of scrolling</h4>
+      <div class="scrollingy300 directionScroll">
+          <img src='http://placehold.it/300x160/00ff00/000000&text=scroll me down'/>
+          <img src='http://placehold.it/300x160/00ffff/000000&text=keep scrolling' />
+          <img src='http://placehold.it/300x160/ff00ff/000000&text=keep scrolling' />
+          <img src='http://placehold.it/300x160/ff0000/000000&text=scroll me up' />
+      </div>
+      
       <h4>Scrollsnap scrollable frames</h4>
       <p>Same here but with an iframe. Scroll on the colored rectangles (vertically), and notice how it snaps perfectly to each of the colored rectangles.</p>
       <iframe class="iframe300" src='demo/iframe-x.html' frameborder='0'></iframe>

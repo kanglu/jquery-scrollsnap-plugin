@@ -33,7 +33,8 @@
     $.fn.scrollsnap = function( options ) {
 
         var settings = $.extend( {
-            'direction': 'y',
+            'snapOnScrollDirection': false,
+            'direction': 'y',            
             'snaps' : '*',
             'proximity' : 12,
             'offset' : 0,
@@ -58,21 +59,75 @@
                 // scrollingEl is DOM element
 
                 $scrollingEl.css('position', 'relative');
-
+                
                 var lastOffset = null;
-                var handler = function(e) {
+                var handler = function(e) {                                                 
 
-                    var matchingEl = null, matchingDy = settings.proximity + 1;
+                    var $snappingElems = $scrollingEl.find(settings.snaps);
+                        
+                    if (settings.snapOnScrollDirection === true) {                    
+                    
+                        var matchingEl = null;
+                        var prevMatchEl = $snappingElems[0];
+                        var curMatchEl = null;
+                        
+                        // Find the matchingEl of lastOffset
+                        $snappingElems.each(function(index) {
+                            var maxIndex = $snappingElems.length - 1;
+                            var last = $snappingElems[maxIndex];                        
+                            var next = index + 1 < $snappingElems.length ? $snappingElems[index + 1] : last;
+                            if (lastOffset == this[offsetLT] + settings.offset) {
+                                prevMatchEl = $snappingElems[index];
+                            }
+                            if (this != next && this[offsetLT] + settings.offset <= scrollingEl[scrollLT] &&
+                                scrollingEl[scrollLT] < next[offsetLT]) 
+                            {
+                                curMatchEl = $snappingElems[index];
+                            }
+                            
+                            if (index == maxIndex) {
+                                if (!curMatchEl) {
+                                    curMatchEl = this;
+                                }
+                            
+                                if (scrollingEl[scrollLT] < lastOffset) {                        
+                                    matchingEl = curMatchEl;
+                                }
+                                else if (scrollingEl[scrollLT] > lastOffset) {
+                                    var nextEl = $(curMatchEl).next()[0];
+                                    if (nextEl) {
+                                        var snapLength = (nextEl[offsetLT] - curMatchEl[offsetLT]);
+                                        if (curMatchEl == prevMatchEl ||
+                                            (curMatchEl != last && 
+                                                snapLength * 0.5 <= scrollingEl[scrollLT] - curMatchEl[offsetLT])) 
+                                        {
+                                            matchingEl = $(curMatchEl).next()[0];
+                                        } else {
+                                            matchingEl = curMatchEl;
+                                        }
+                                    }
+                                    if (!matchingEl) {
+                                        matchingEl = last;
+                                    }
+                                }
+                                else {
+                                    matchingEl = curMatchEl;
+                                }                                
+                            }
+                        });
+                    }
+                    else {
+                        var matchingEl = null, matchingDy = settings.proximity + 1;                
+                        $snappingElems.each(function(index) {
+                            var snappingEl = this,
+                                dy = Math.abs(snappingEl[offsetLT] + settings.offset - scrollingEl[scrollLT]);
 
-                    $scrollingEl.find(settings.snaps).each(function() {
-                        var snappingEl = this,
-                            dy = Math.abs(snappingEl[offsetLT] + settings.offset - scrollingEl[scrollLT]);
-
-                        if (dy < matchingDy) {
-                            matchingEl = snappingEl;
-                            matchingDy = dy;
-                        }
-                    });
+                            if (dy < matchingDy) {
+                                matchingEl = snappingEl;
+                                matchingDy = dy;
+                            }
+                        });
+                    }
 
                     if (matchingEl) {
                         var endScroll = matchingEl[offsetLT] + settings.offset,
